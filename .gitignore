@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
-package-lock.json
+# Allow package-lock.json for reproducible builds in Docker
+# package-lock.json
 yarn.lock
 
 # Environment
