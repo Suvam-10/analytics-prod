@@ -10,8 +10,14 @@ router.post('/create', async (req, res, next) => {
     if (!app_id || !target_url) return res.status(400).json({ error: 'app_id and target_url required' });
     const code = short_code || uuidv4().slice(0,8);
     const [row] = await knex('short_urls').insert({ app_id, short_code: code, target_url }).returning('*');
-    res.status(201).json(row);
-  } catch (err) { next(err); }
+    res.status(201).json({ ...row, clicks: parseInt(row.clicks, 10) || 0 });
+  } catch (err) {
+    if (err.code === '23503') {
+      // Foreign key constraint violation
+      return res.status(400).json({ error: 'Invalid app_id' });
+    }
+    next(err);
+  }
 });
 
 router.get('/stats', async (req, res, next) => {

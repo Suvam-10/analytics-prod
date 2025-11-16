@@ -18,9 +18,11 @@ router.get('/api-key', async (req, res, next) => {
   try {
     const appId = req.query.app_id;
     if (!appId) return res.status(400).json({ error: 'app_id required' });
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(appId)) return res.status(400).json({ error: 'Invalid app_id format' });
     const row = await apiKeyService.getApiKeyForApp(appId);
     if (!row) return res.status(404).json({ error: 'No API key found' });
-    res.json(row);
+    res.json({ key_id: row.id, app_id: row.app_id, created_at: row.created_at, expires_at: row.expires_at, revoked: row.revoked });
   } catch (err) {
     next(err);
   }

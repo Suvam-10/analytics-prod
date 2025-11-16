@@ -4,13 +4,20 @@ const Knex = require('knex');
 const knex = Knex(require('../db/knexfile'));
 const apiKeyAuth = require('../middleware/apiKeyAuth');
 const rateLimiter = require('../middleware/rateLimiter');
-const Redis = require('ioredis');
-const config = require('../config');
-const redis = new Redis(config.redisUrl);
+const redis = require('../redisClient');
 
 router.post('/collect', apiKeyAuth, rateLimiter, async (req, res, next) => {
   try {
-    const payload = req.body.events ? req.body.events : [req.body];
+    const { events } = req.body;
+    let payload;
+    
+    if (events) {
+      payload = events;
+    } else if (req.body.event_type || req.body.event) {
+      payload = [req.body];
+    } else {
+      return res.status(400).json({ error: 'No events provided' });
+    }
 
     if (!Array.isArray(payload) || payload.length === 0) {
       return res.status(400).json({ error: 'No events provided' });
@@ -43,7 +50,12 @@ router.get('/event-summary', apiKeyAuth, rateLimiter, async (req, res, next) => 
     const appFilter = app_id ? { app_id } : { app_id: req.app_id };
 
     const cacheKey = `summary:${appFilter.app_id || 'all'}:${event || 'all'}:${startDate || '0'}:${endDate || 'now'}`;
-    const cached = await redis.get(cacheKey);
+    let cached;
+    try {
+      cached = await redis.get(cacheKey);
+    } catch (e) {
+      // Redis offline is acceptable; continue without cache
+    }
     if (cached) return res.json(JSON.parse(cached));
 
     const start = startDate ? new Date(startDate) : new Date(Date.now() - 7 * 24 * 3600 * 1000);
@@ -68,7 +80,11 @@ router.get('/event-summary', apiKeyAuth, rateLimiter, async (req, res, next) => 
       deviceData: deviceRows.reduce((acc, r) => { acc[r.device || 'unknown'] = parseInt(r.cnt, 10); return acc; }, {})
     };
 
-    await redis.set(cacheKey, JSON.stringify(resp), 'EX', 60);
+    try {
+      await redis.set(cacheKey, JSON.stringify(resp), 'EX', 60);
+    } catch (e) {
+      // Redis offline is acceptable; continue without cache
+    }
 
     res.json(resp);
   } catch (err) {

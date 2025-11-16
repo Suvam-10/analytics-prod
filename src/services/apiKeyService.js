@@ -16,7 +16,7 @@ async function registerApp({ name, owner_email, meta }) {
     expires_at: expiresAt
   }).returning(['id', 'created_at', 'expires_at']);
 
-  return { app, apiKey: { id: apiKeyRow.id, key: plaintextKey, expires_at: apiKeyRow.expires_at } };
+  return { app, apiKey: { id: apiKeyRow.id, token: plaintextKey, expires_at: apiKeyRow.expires_at } };
 }
 
 async function getApiKeyForApp(appId) {

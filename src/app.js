@@ -25,7 +25,11 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).json({ error: err.message || 'Internal server error' });
+  if (err.status === 400) {
+    return res.status(400).json({ error: err.message || 'Bad Request' });
+  }
+  const statusCode = err.statusCode || err.status || 500;
+  res.status(statusCode).json({ error: err.message || 'Internal server error' });
 });
 
 module.exports = app;
