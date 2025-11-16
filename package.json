@@ -1,0 +1,57 @@
+{
+  "name": "analytics-backend",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest --detectOpenHandles",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:integration": "jest tests/integration.test.js",
+    "migrate": "npx knex --knexfile src/db/knexfile.js migrate:latest",
+    "rollback": "npx knex --knexfile src/db/knexfile.js migrate:rollback",
+    "migrations": "npm run migrate"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 30000,
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/index.js",
+      "!src/docs/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 50,
+        "functions": 50,
+        "lines": 50,
+        "statements": 50
+      }
+    }
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.8.0",
+    "helmet": "^6.1.4",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.0",
+    "knex": "^3.1.0",
+    "morgan": "^1.10.0",
+    "pg": "^8.11.0",
+    "rate-limit-redis": "^2.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.3",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.6.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.4"
+  }
+}
+

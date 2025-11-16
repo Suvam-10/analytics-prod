@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: analytics-backend
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+
+databases:
+  - name: postgres
+    plan: starter
+    version: "15"
+  - name: redis
+    plan: starter
+    version: "7"

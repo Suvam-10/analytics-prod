@@ -1,0 +1,16 @@
+{
+  "services": [
+    {
+      "name": "analytics-backend",
+      "serviceName": "analytics-backend",
+      "environments": [
+        {
+          "name": "production"
+        }
+      ],
+      "plan": "starter",
+      "buildCommand": "npm ci --omit=dev",
+      "startCommand": "npm start"
+    }
+  ]
+}
