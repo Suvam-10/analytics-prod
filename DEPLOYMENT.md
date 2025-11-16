@@ -161,6 +161,8 @@ heroku open -a analytics-backend
 
 ## Render.com Deployment
 
+> **IMPORTANT:** For a detailed guide with troubleshooting for managed services, see [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md)
+
 ### Step 1: Connect GitHub Repository
 - Go to render.com and connect your GitHub repository
 - Click "New+" → "Web Service"
@@ -174,24 +176,34 @@ Runtime: Docker
 Plan: Free (or Starter)
 ```
 
-### Step 3: Set Environment Variables in Render Dashboard
+### Step 3: Create PostgreSQL & Redis Services FIRST
+**CRITICAL:** Create database and cache services before configuring the web service:
+
+1. Create PostgreSQL database from Render dashboard
+   - Copy the **Internal Database URL** (used for service-to-service communication)
+   - This starts with: `postgresql://...@<service-name>.internal:5432/...`
+   
+2. Create Redis service from Render dashboard
+   - Copy the **Internal Redis URL** (used for service-to-service communication)
+   - This starts with: `redis://<service-name>.internal:6379`
+
+### Step 4: Set Environment Variables in Render Dashboard
 ```
 NODE_ENV=production
 PORT=10000
 API_KEY_SECRET=<generate-random-string>
 JWT_SECRET=<generate-random-string>
-DATABASE_URL=<postgresql-url-from-render-postgres>
-REDIS_URL=<redis-url-from-render-redis>
+DATABASE_URL=<postgresql-internal-url>
+REDIS_URL=<redis-internal-url>
 MIGRATE_ON_START=true
 ```
 
-### Step 4: Create PostgreSQL & Redis Services
-- Add PostgreSQL database service from Render
-- Add Redis service from Render
-- Copy connection URLs to environment variables
+**Key Point:** Use **Internal** database URLs (containing `.internal` in hostname), NOT the public URLs. Internal URLs are only accessible between services in the same Render project.
 
 ### Step 5: Deploy
 Click "Deploy" - Render will automatically build and deploy from Dockerfile.
+
+**If you encounter connection errors:** See [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) for troubleshooting internal vs. public URLs.
 
 ## Railway.app Deployment
 
