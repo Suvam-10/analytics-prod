@@ -7,7 +7,8 @@ async function registerApp({ name, owner_email, meta }) {
   const [app] = await knex('apps').insert({ name, owner_email, meta }).returning('*');
   const plaintextKey = generateKey(32);
   const hash = await hashKey(plaintextKey);
-  const expiresAt = new Date(Date.now() + config.apiKey.defaultTtlDays * 24 * 3600 * 1000);
+  const ttlDays = parseInt(process.env.API_KEY_TTL_DAYS || '365', 10);
+  const expiresAt = new Date(Date.now() + ttlDays * 24 * 3600 * 1000);
 
   const [apiKeyRow] = await knex('api_keys').insert({
     app_id: app.id,
